@@ -1,6 +1,4 @@
-from django.db.models import query
-from rest_framework.response import Response
-from rest_framework import generics, serializers
+from rest_framework import generics
 from .models import CustomUser
 from .serializers import CustomUserSerializer
 
