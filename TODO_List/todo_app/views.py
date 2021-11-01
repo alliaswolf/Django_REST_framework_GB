@@ -1,6 +1,5 @@
-from rest_framework.decorators import renderer_classes
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
+from djangorestframework_camel_case.render import CamelCaseJSONRenderer, CamelCaseBrowsableAPIRenderer
 from .models import Project, TODO
 from .serializers import ProjectSerializer, TODOSerializer
 
@@ -8,12 +7,12 @@ from .serializers import ProjectSerializer, TODOSerializer
 
 
 class ProjectViewSet(ModelViewSet):
-    renderer_classes = [JSONRenderer, BrowsableAPIRenderer]
+    renderer_classes = [CamelCaseJSONRenderer, CamelCaseBrowsableAPIRenderer]
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
 
 
 class TODOViewSet(ModelViewSet):
-    renderer_classes = [JSONRenderer, BrowsableAPIRenderer]
+    renderer_classes = [CamelCaseJSONRenderer, CamelCaseBrowsableAPIRenderer]
     queryset = TODO.objects.all()
     serializer_class = TODOSerializer
