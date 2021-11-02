@@ -13,7 +13,15 @@ class ProjectFilter(filters.FilterSet):
 class TODOFilter(filters.FilterSet):
     project__title = filters.CharFilter(field_name='project__title',
                                         lookup_expr='contains')
+    start_date = filters.DateTimeFilter(
+        field_name='date_created',
+        lookup_expr='gte',
+        label='Дата создания от (yyyy/mm/dd H:m:s):')
+    end_date = filters.DateTimeFilter(
+        field_name='date_created',
+        lookup_expr='lte',
+        label='Дата создания до (yyyy/mm/dd H:m:s):')
 
     class Meta:
         model = TODO
-        fields = ['project__title']
+        fields = ['project__title', 'start_date', 'end_date']
