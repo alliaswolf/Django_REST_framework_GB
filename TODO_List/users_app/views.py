@@ -5,11 +5,11 @@ from .serializers import CustomUserSerializer
 # Create your views here.
 
 
-class CustomUserListView(generics.ListCreateAPIView):
+class CustomUserListView(generics.ListAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
 
 
-class CustomUserDetailView(generics.RetrieveUpdateDestroyAPIView):
+class CustomUserDetailView(generics.RetrieveUpdateAPIView):
     queryset = CustomUser.objects.all()
     serializer_class = CustomUserSerializer
