@@ -14,7 +14,7 @@ class Project(models.Model):
     class Meta:
         verbose_name = 'Project'
         verbose_name_plural = 'Projects'
-        ordering = ['title']
+        ordering = ['id', 'title']
 
     def __str__(self):
         return self.title
@@ -39,7 +39,7 @@ class TODO(models.Model):
     class Meta:
         verbose_name = 'TODO'
         verbose_name_plural = 'TODOs'
-        ordering = ['title', 'date_created']
+        ordering = ['id', 'title', 'date_created']
 
     def __str__(self):
         return self.title
