@@ -1,0 +1,12 @@
+#authtoken
+
+import requests
+response = requests.post('http://127.0.0.1:8000/api-token-auth/', data={"username":"Adam29@mail.com","password":"123"})
+response.json()
+{'token': '1f3a90e47d3e8f0b2ff8863c2ae3a8f2b8e1a853'}
+
+# simplejwt
+response = requests.post('http://127.0.0.1:8000/api/token/', data={"email":"Adam29@mail.com","password":"123"})
+response.json()
+{'refresh': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTYzNjc0OTg4MiwiaWF0IjoxNjM2NjYzNDgyLCJqdGkiOiI1M2E2MzA3YjY3MGM0ZDUxOTZjMWJmMDE0OWQxZWFlZSIsInVzZXJfaWQiOjI5fQ.TnXBjVfVGDngRNc-jZ0k6bxUswUaj9esSeDx-wFfV4R', 'access': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjM2NjYzNzgyLCJpYXQiOjE2MzY2NjM0ODIsImp0aSI6IjFmNmFlMzZiZTA2NzQxZjI4Mjk1NjZjMjBmMWM3ZjlmIiwidXNlcl9pZCI6Mjl9.CNj7Awbnzk7ksGVZOOM8GLVkA3CMR1uRa2R0FXHQMuW'}
+
