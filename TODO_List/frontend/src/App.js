@@ -40,7 +40,7 @@ class App extends React.Component {
   set_token(token) {
     const cookies = new Cookies();
     cookies.set("token", token);
-    this.setState({ token: token });
+    this.setState({ token: token }, () => this.load_data());
   }
 
   is_authenticated() {
@@ -54,7 +54,7 @@ class App extends React.Component {
   get_token_from_storage() {
     const cookies = new Cookies();
     const token = cookies.get("token");
-    this.setState({ token: token });
+    this.setState({ token: token }, () => this.load_data());
   }
 
   get_token(username, password) {
@@ -73,18 +73,31 @@ class App extends React.Component {
       );
   }
 
+  get_headers() {
+    let headers = {
+      "Content-Type": "application/json",
+    };
+    if (this.is_authenticated()) {
+      headers["Authorization"] = "Token " + this.state.token;
+    }
+    return headers;
+  }
+
   load_data() {
+    const headers = this.get_headers();
     axios
-      .get("http://127.0.0.1:8000/api/users/")
+      .get("http://127.0.0.1:8000/api/users/", { headers })
       .then((response) => {
         const users = response.data.results;
         this.setState({
           users: users,
         });
       })
-      .catch((error) => console.log(console.error()));
+      .catch((error) => {
+        this.setState({ users: [] });
+      });
     axios
-      .get("http://127.0.0.1:8000/api/projects/todo/")
+      .get("http://127.0.0.1:8000/api/projects/todo/", { headers })
       .then((response) => {
         const todos = response.data.results;
         this.setState({
@@ -93,7 +106,7 @@ class App extends React.Component {
       })
       .catch((error) => console.log(console.error()));
     axios
-      .get("http://127.0.0.1:8000/api/projects/project/")
+      .get("http://127.0.0.1:8000/api/projects/project/", { headers })
       .then((response) => {
         const projects = response.data.results;
         this.setState({
@@ -105,7 +118,6 @@ class App extends React.Component {
 
   componentDidMount() {
     this.get_token_from_storage();
-    this.load_data();
   }
 
   render() {
