@@ -27,7 +27,7 @@ class LoginForm extends React.Component {
           onChange={(event) => this.handleChange(event)}
         />
         <input
-          type="text"
+          type="password"
           name="password"
           placeholder="password"
           className="mx-2  "

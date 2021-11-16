@@ -8,6 +8,7 @@ import MenuList from "./components/Menu";
 import Footer from "./components/Footer";
 import LoginForm from "./components/Auth";
 import axios from "axios";
+import Cookies from "universal-cookie";
 import { BrowserRouter, Route, Switch, Link } from "react-router-dom";
 
 const NotFound404 = ({ location }) => {
@@ -22,6 +23,7 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      token: "",
       users: [],
       todos: [],
       projects: [],
@@ -34,6 +36,43 @@ class App extends React.Component {
       textFooter: "Footer text about something.",
     };
   }
+
+  set_token(token) {
+    const cookies = new Cookies();
+    cookies.set("token", token);
+    this.setState({ token: token });
+  }
+
+  is_authenticated() {
+    return !!this.state.token;
+  }
+
+  logout() {
+    this.set_token("");
+  }
+
+  get_token_from_storage() {
+    const cookies = new Cookies();
+    const token = cookies.get("token");
+    this.setState({ token: token });
+  }
+
+  get_token(username, password) {
+    axios
+      .post("http://127.0.0.1:8000/api-token-auth/", {
+        username: username,
+        password: password,
+      })
+      .then((response) => {
+        this.set_token(response.data.token);
+      })
+      .catch((error) =>
+        alert(
+          `Code status is ${error.response.status} - Invalid username or password`
+        )
+      );
+  }
+
   load_data() {
     axios
       .get("http://127.0.0.1:8000/api/users/")
@@ -63,18 +102,9 @@ class App extends React.Component {
       })
       .catch((error) => console.log(console.error()));
   }
-  get_token(username, password) {
-    axios
-      .post("http://127.0.0.1:8000/api-token-auth/", {
-        username: username,
-        password: password,
-      })
-      .then((response) => {
-        console.log(response.data);
-      })
-      .catch((error) => alert(error.response.status));
-  }
+
   componentDidMount() {
+    this.get_token_from_storage();
     this.load_data();
   }
 
@@ -87,7 +117,11 @@ class App extends React.Component {
               <ul className="list-group list-group-horizontal">
                 <li className="list-group-item">Username</li>
                 <li className="list-group-item">
-                  <Link to="/login">Login</Link>
+                  {this.is_authenticated() ? (
+                    <button onClick={() => this.logout()}>Logout</button>
+                  ) : (
+                    <Link to="/login">Login</Link>
+                  )}
                 </li>
               </ul>
             </div>
