@@ -23,6 +23,7 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      username: "Guest",
       token: "",
       users: [],
       todos: [],
@@ -37,10 +38,11 @@ class App extends React.Component {
     };
   }
 
-  set_token(token) {
+  set_token_and_username(token, username) {
     const cookies = new Cookies();
     cookies.set("token", token);
-    this.setState({ token: token }, () => this.load_data());
+    cookies.set("username", username);
+    this.setState({ token: token, username: username }, () => this.load_data());
   }
 
   is_authenticated() {
@@ -48,13 +50,16 @@ class App extends React.Component {
   }
 
   logout() {
-    this.set_token("");
+    let token = "";
+    let username = "Guest";
+    this.set_token_and_username(token, username);
   }
 
-  get_token_from_storage() {
+  get_token_and_username_from_storage() {
     const cookies = new Cookies();
     const token = cookies.get("token");
-    this.setState({ token: token }, () => this.load_data());
+    const username = cookies.get("username");
+    this.setState({ token: token, username: username }, () => this.load_data());
   }
 
   get_token(username, password) {
@@ -64,7 +69,10 @@ class App extends React.Component {
         password: password,
       })
       .then((response) => {
-        this.set_token(response.data.token);
+        this.set_token_and_username(
+          response.data.token,
+          response.data.username
+        );
       })
       .catch((error) =>
         alert(
@@ -117,7 +125,7 @@ class App extends React.Component {
   }
 
   componentDidMount() {
-    this.get_token_from_storage();
+    this.get_token_and_username_from_storage();
   }
 
   render() {
@@ -127,12 +135,16 @@ class App extends React.Component {
           <div className="row pt-3 justify-content-end">
             <div className="col-3  align-self-end">
               <ul className="list-group list-group-horizontal">
-                <li className="list-group-item">Username</li>
+                <li className="list-group-item">
+                  Welcome <strong>{this.state.username}</strong>!
+                </li>
                 <li className="list-group-item">
                   {this.is_authenticated() ? (
                     <button onClick={() => this.logout()}>Logout</button>
                   ) : (
-                    <Link to="/login">Login</Link>
+                    <Link to="/login">
+                      <button>Login</button>
+                    </Link>
                   )}
                 </li>
               </ul>
