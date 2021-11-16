@@ -6,8 +6,9 @@ import InfoList from "./components/Home";
 import TodoList from "./components/Todos";
 import MenuList from "./components/Menu";
 import Footer from "./components/Footer";
+import LoginForm from "./components/Auth";
 import axios from "axios";
-import { BrowserRouter, Route, Switch } from "react-router-dom";
+import { BrowserRouter, Route, Switch, Link } from "react-router-dom";
 
 const NotFound404 = ({ location }) => {
   return (
@@ -24,18 +25,16 @@ class App extends React.Component {
       users: [],
       todos: [],
       projects: [],
-      menu: [],
+      menu: [
+        { id: 1, link: "/", title: "Home" },
+        { id: 2, link: "/user", title: "Users" },
+        { id: 3, link: "/todo", title: "Todos" },
+        { id: 4, link: "/project", title: "Projects" },
+      ],
       textFooter: "Footer text about something.",
     };
   }
-  componentDidMount() {
-    const menu = [
-      { id: 1, link: "/", title: "Home" },
-      { id: 2, link: "/user", title: "Users" },
-      { id: 3, link: "/todo", title: "Todos" },
-      { id: 4, link: "/project", title: "Projects" },
-    ];
-    this.setState({ menu: menu });
+  load_data() {
     axios
       .get("http://127.0.0.1:8000/api/users/")
       .then((response) => {
@@ -64,11 +63,24 @@ class App extends React.Component {
       })
       .catch((error) => console.log(console.error()));
   }
+  componentDidMount() {
+    this.load_data();
+  }
 
   render() {
     return (
       <div className="container text-center">
         <BrowserRouter>
+          <div className="row pt-3 justify-content-end">
+            <div className="col-3  align-self-end">
+              <ul className="list-group list-group-horizontal">
+                <li className="list-group-item">Username</li>
+                <li className="list-group-item">
+                  <Link to="/login">Login</Link>
+                </li>
+              </ul>
+            </div>
+          </div>
           <MenuList menu={this.state.menu} />
           <Switch>
             <Route
@@ -82,6 +94,7 @@ class App extends React.Component {
                 />
               )}
             />
+            <Route exact path="/login" component={() => <LoginForm />} />
             <Route
               exact
               path="/user"
