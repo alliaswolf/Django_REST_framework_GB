@@ -63,6 +63,17 @@ class App extends React.Component {
       })
       .catch((error) => console.log(console.error()));
   }
+  get_token(username, password) {
+    axios
+      .post("http://127.0.0.1:8000/api-token-auth/", {
+        username: username,
+        password: password,
+      })
+      .then((response) => {
+        console.log(response.data);
+      })
+      .catch((error) => alert(error.response.status));
+  }
   componentDidMount() {
     this.load_data();
   }
@@ -94,7 +105,17 @@ class App extends React.Component {
                 />
               )}
             />
-            <Route exact path="/login" component={() => <LoginForm />} />
+            <Route
+              exact
+              path="/login"
+              component={() => (
+                <LoginForm
+                  get_token={(username, password) =>
+                    this.get_token(username, password)
+                  }
+                />
+              )}
+            />
             <Route
               exact
               path="/user"
