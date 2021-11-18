@@ -1,4 +1,7 @@
+import json
+
 from django.test import TestCase
+from mixer.backend.django import mixer
 from rest_framework import status
 from rest_framework.test import APIClient, APISimpleTestCase, APITestCase
 from users_app.models import CustomUser
@@ -123,3 +126,20 @@ class TestTODOViewSet(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         todo_edit = TODO.objects.get(pk=new_todo.pk)
         self.assertEqual(todo_edit.text, self.edit_todo_data['text'])
+
+    def test_edit_mixer(self):
+        new_todo = mixer.blend(TODO)
+        admin = self.get_auth_superuser()
+        self.client.login(username='Randy@mail.com', password='admin')
+        response = self.client.patch(f"{self.url}{new_todo.pk}/",
+                                     data=self.edit_todo_data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        todo_edit = TODO.objects.get(pk=new_todo.pk)
+        self.assertEqual(todo_edit.text, self.edit_todo_data['text'])
+
+    def test_get_detail_mixer(self):
+        new_todo = mixer.blend(TODO, title="Mixer is here.")
+        response = self.client.get(f"{self.url}{new_todo.pk}/")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response_todo = json.loads(response.content)
+        self.assertEqual(response_todo['title'], 'Mixer is here.')
