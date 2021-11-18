@@ -1,9 +1,12 @@
-from rest_framework.viewsets import ModelViewSet
+from djangorestframework_camel_case.render import (
+    CamelCaseBrowsableAPIRenderer, CamelCaseJSONRenderer)
 from rest_framework.pagination import LimitOffsetPagination
-from djangorestframework_camel_case.render import CamelCaseJSONRenderer, CamelCaseBrowsableAPIRenderer
+from rest_framework.viewsets import ModelViewSet
+
 from .filters import ProjectFilter, TODOFilter
-from .models import Project, TODO
-from .serializers import ProjectSerializer, TODOSerializer
+from .models import TODO, Project
+from .serializers import (ProjectSerializer, ProjectSerializerBase,
+                          TODOSerializer, TODOSerializerBase)
 
 # Create your views here.
 
@@ -19,17 +22,25 @@ class TODOLimitOffsetPagination(LimitOffsetPagination):
 class ProjectViewSet(ModelViewSet):
     renderer_classes = [CamelCaseJSONRenderer, CamelCaseBrowsableAPIRenderer]
     queryset = Project.objects.all()
-    serializer_class = ProjectSerializer
     pagination_class = ProjectLimitOffsetPagination
     filterset_class = ProjectFilter
+
+    def get_serializer_class(self):
+        if self.request.method in ["GET"]:
+            return ProjectSerializer
+        return ProjectSerializerBase
 
 
 class TODOViewSet(ModelViewSet):
     renderer_classes = [CamelCaseJSONRenderer, CamelCaseBrowsableAPIRenderer]
     queryset = TODO.objects.all()
-    serializer_class = TODOSerializer
     pagination_class = TODOLimitOffsetPagination
     filterset_class = TODOFilter
+
+    def get_serializer_class(self):
+        if self.request.method in ["GET"]:
+            return TODOSerializer
+        return TODOSerializerBase
 
     def perform_destroy(self, instance):
         instance.is_active = False

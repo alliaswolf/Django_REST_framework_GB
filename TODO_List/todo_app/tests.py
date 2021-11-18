@@ -1,6 +1,6 @@
 from django.test import TestCase
 from rest_framework import status
-from rest_framework.test import APIClient, APISimpleTestCase
+from rest_framework.test import APIClient, APISimpleTestCase, APITestCase
 from users_app.models import CustomUser
 
 from .models import TODO, Project
@@ -79,3 +79,47 @@ class TestMath(APISimpleTestCase):
     def test_sum(self):
         x, y = 5, 10
         self.assertEqual(15, x + y)
+
+
+class TestTODOViewSet(APITestCase):
+    url = "/api/projects/todo/"
+    todo_data = {
+        "text": "About something.",
+        "title": "My note.",
+    }
+    project_data = {"title": "Main project.", "link": "https://everywhere.com"}
+    edit_todo_data = {
+        "text": "You mustn't read the note.",
+        "title": "Only my note.",
+    }
+
+    @staticmethod
+    def get_auth_superuser():
+        return CustomUser.objects.create_superuser(username="Randy",
+                                                   email='Randy@mail.com',
+                                                   birthday=2001,
+                                                   password="admin")
+
+    def get_new_project(self, admin):
+        project = Project.objects.create(title=self.project_data['title'],
+                                         link=self.project_data['link'])
+        project.users_worked.add(admin)
+        return project
+
+    def test_get_list(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_edit_admin(self):
+        admin = self.get_auth_superuser()
+        created_project = self.get_new_project(admin)
+        new_todo = TODO.objects.create(text=self.todo_data['text'],
+                                       title=self.todo_data['title'],
+                                       author=admin,
+                                       project=created_project)
+        self.client.login(username='Randy@mail.com', password='admin')
+        response = self.client.patch(f"{self.url}{new_todo.pk}/",
+                                     data=self.edit_todo_data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        todo_edit = TODO.objects.get(pk=new_todo.pk)
+        self.assertEqual(todo_edit.text, self.edit_todo_data['text'])
