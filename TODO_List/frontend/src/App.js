@@ -6,8 +6,10 @@ import InfoList from "./components/Home";
 import TodoList from "./components/Todos";
 import MenuList from "./components/Menu";
 import Footer from "./components/Footer";
+import LoginForm from "./components/Auth";
 import axios from "axios";
-import { BrowserRouter, Route, Switch } from "react-router-dom";
+import Cookies from "universal-cookie";
+import { BrowserRouter, Route, Switch, Link } from "react-router-dom";
 
 const NotFound404 = ({ location }) => {
   return (
@@ -21,32 +23,89 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      username: "Guest",
+      token: "",
       users: [],
       todos: [],
       projects: [],
-      menu: [],
+      menu: [
+        { id: 1, link: "/", title: "Home" },
+        { id: 2, link: "/user", title: "Users" },
+        { id: 3, link: "/todo", title: "Todos" },
+        { id: 4, link: "/project", title: "Projects" },
+      ],
       textFooter: "Footer text about something.",
     };
   }
-  componentDidMount() {
-    const menu = [
-      { id: 1, link: "/", title: "Home" },
-      { id: 2, link: "/user", title: "Users" },
-      { id: 3, link: "/todo", title: "Todos" },
-      { id: 4, link: "/project", title: "Projects" },
-    ];
-    this.setState({ menu: menu });
+
+  set_token_and_username(token, username) {
+    const cookies = new Cookies();
+    cookies.set("token", token);
+    cookies.set("username", username);
+    this.setState({ token: token, username: username }, () => this.load_data());
+  }
+
+  is_authenticated() {
+    return !!this.state.token;
+  }
+
+  logout() {
+    let token = "";
+    let username = "Guest";
+    this.set_token_and_username(token, username);
+  }
+
+  get_token_and_username_from_storage() {
+    const cookies = new Cookies();
+    const token = cookies.get("token");
+    const username = cookies.get("username");
+    this.setState({ token: token, username: username }, () => this.load_data());
+  }
+
+  get_token(username, password) {
     axios
-      .get("http://127.0.0.1:8000/api/users/")
+      .post("http://127.0.0.1:8000/api-token-auth/", {
+        username: username,
+        password: password,
+      })
+      .then((response) => {
+        this.set_token_and_username(
+          response.data.token,
+          response.data.username
+        );
+      })
+      .catch((error) =>
+        alert(
+          `Code status is ${error.response.status} - Invalid username or password`
+        )
+      );
+  }
+
+  get_headers() {
+    let headers = {
+      "Content-Type": "application/json",
+    };
+    if (this.is_authenticated()) {
+      headers["Authorization"] = "Token " + this.state.token;
+    }
+    return headers;
+  }
+
+  load_data() {
+    const headers = this.get_headers();
+    axios
+      .get("http://127.0.0.1:8000/api/users/", { headers })
       .then((response) => {
         const users = response.data.results;
         this.setState({
           users: users,
         });
       })
-      .catch((error) => console.log(console.error()));
+      .catch((error) => {
+        this.setState({ users: [] });
+      });
     axios
-      .get("http://127.0.0.1:8000/api/projects/todo/")
+      .get("http://127.0.0.1:8000/api/projects/todo/", { headers })
       .then((response) => {
         const todos = response.data.results;
         this.setState({
@@ -55,7 +114,7 @@ class App extends React.Component {
       })
       .catch((error) => console.log(console.error()));
     axios
-      .get("http://127.0.0.1:8000/api/projects/project/")
+      .get("http://127.0.0.1:8000/api/projects/project/", { headers })
       .then((response) => {
         const projects = response.data.results;
         this.setState({
@@ -65,10 +124,32 @@ class App extends React.Component {
       .catch((error) => console.log(console.error()));
   }
 
+  componentDidMount() {
+    this.get_token_and_username_from_storage();
+  }
+
   render() {
     return (
       <div className="container text-center">
         <BrowserRouter>
+          <div className="row pt-3 justify-content-end">
+            <div className="col-3  align-self-end">
+              <ul className="list-group list-group-horizontal">
+                <li className="list-group-item">
+                  Welcome <strong>{this.state.username}</strong>!
+                </li>
+                <li className="list-group-item">
+                  {this.is_authenticated() ? (
+                    <button onClick={() => this.logout()}>Logout</button>
+                  ) : (
+                    <Link to="/login">
+                      <button>Login</button>
+                    </Link>
+                  )}
+                </li>
+              </ul>
+            </div>
+          </div>
           <MenuList menu={this.state.menu} />
           <Switch>
             <Route
@@ -79,6 +160,17 @@ class App extends React.Component {
                   users={this.state.users}
                   projects={this.state.projects}
                   todos={this.state.todos}
+                />
+              )}
+            />
+            <Route
+              exact
+              path="/login"
+              component={() => (
+                <LoginForm
+                  get_token={(username, password) =>
+                    this.get_token(username, password)
+                  }
                 />
               )}
             />
