@@ -1,6 +1,6 @@
 from django.test import TestCase
 from rest_framework import status
-from rest_framework.test import APIClient
+from rest_framework.test import APIClient, APISimpleTestCase
 from users_app.models import CustomUser
 
 from .models import TODO, Project
@@ -69,3 +69,13 @@ class TestProjectViews(TestCase):
         self.assertEqual(project_edit.link, self.edit_project_data['link'])
         self.assertEqual(project_edit.title, self.edit_project_data['title'])
         client.logout()
+
+
+class TestMath(APISimpleTestCase):
+    def test_square(self):
+        x = 5
+        self.assertEqual(25, x * x)
+
+    def test_sum(self):
+        x, y = 5, 10
+        self.assertEqual(15, x + y)
