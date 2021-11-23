@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'users_app',
     'todo_app',
     'corsheaders',
+    'drf_yasg',
     'rest_framework.authtoken',
     'rest_framework_simplejwt',
 ]
