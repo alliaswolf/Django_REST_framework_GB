@@ -4,7 +4,7 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.response import Response
 
 from .models import CustomUser
-from .serializers import CustomUserSerializer
+from .serializers import CustomUserSerializer, CustomUserSerializerStaff
 
 # Create your views here.
 
@@ -25,11 +25,19 @@ class CustomAuthToken(ObtainAuthToken):
 
 class CustomUserListView(generics.ListAPIView):
     queryset = CustomUser.objects.all()
-    serializer_class = CustomUserSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    def get_serializer_class(self):
+        if self.request.version == "0.2":
+            return CustomUserSerializerStaff
+        return CustomUserSerializer
 
 
 class CustomUserDetailView(generics.RetrieveUpdateAPIView):
     queryset = CustomUser.objects.all()
-    serializer_class = CustomUserSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    def get_serializer_class(self):
+        if self.request.version == "0.2":
+            return CustomUserSerializerStaff
+        return CustomUserSerializer

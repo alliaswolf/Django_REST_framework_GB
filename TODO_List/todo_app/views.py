@@ -6,7 +6,8 @@ from rest_framework.viewsets import ModelViewSet
 from .filters import ProjectFilter, TODOFilter
 from .models import TODO, Project
 from .serializers import (ProjectSerializer, ProjectSerializerBase,
-                          TODOSerializer, TODOSerializerBase)
+                          ProjectSerializerWithoutLink, TODOSerializer,
+                          TODOSerializerBase, TODOSerializerWithoutDate)
 
 # Create your views here.
 
@@ -27,6 +28,8 @@ class ProjectViewSet(ModelViewSet):
 
     def get_serializer_class(self):
         if self.request.method in ["GET"]:
+            if self.request.version == "0.2":
+                return ProjectSerializerWithoutLink
             return ProjectSerializer
         return ProjectSerializerBase
 
@@ -39,6 +42,8 @@ class TODOViewSet(ModelViewSet):
 
     def get_serializer_class(self):
         if self.request.method in ["GET"]:
+            if self.request.version == "0.2":
+                return TODOSerializerWithoutDate
             return TODOSerializer
         return TODOSerializerBase
 
