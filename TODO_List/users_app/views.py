@@ -2,7 +2,6 @@ from rest_framework import generics, permissions
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.response import Response
-from rest_framework.versioning import URLPathVersioning
 
 from .models import CustomUser
 from .serializers import CustomUserSerializer, CustomUserSerializerStaff
@@ -27,7 +26,6 @@ class CustomAuthToken(ObtainAuthToken):
 class CustomUserListView(generics.ListAPIView):
     queryset = CustomUser.objects.all()
     permission_classes = [permissions.IsAuthenticated]
-    versioning_class = URLPathVersioning
 
     def get_serializer_class(self):
         if self.request.version == "0.2":
@@ -38,7 +36,6 @@ class CustomUserListView(generics.ListAPIView):
 class CustomUserDetailView(generics.RetrieveUpdateAPIView):
     queryset = CustomUser.objects.all()
     permission_classes = [permissions.IsAuthenticated]
-    versioning_class = URLPathVersioning
 
     def get_serializer_class(self):
         if self.request.version == "0.2":
