@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'users_app',
     'todo_app',
     'corsheaders',
+    'drf_yasg',
     'rest_framework.authtoken',
     'rest_framework_simplejwt',
 ]
@@ -156,6 +157,7 @@ REST_FRAMEWORK = {
         'djangorestframework_camel_case.parser.CamelCaseJSONParser',
         # Any other parsers
     ),
+    'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.AcceptHeaderVersioning',
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 100,

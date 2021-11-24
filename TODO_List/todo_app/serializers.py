@@ -18,6 +18,14 @@ class ProjectSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class ProjectSerializerWithoutLink(serializers.ModelSerializer):
+    users_worked = serializers.StringRelatedField(many=True)
+
+    class Meta:
+        model = Project
+        exclude = ['link']
+
+
 class TODOSerializerBase(serializers.ModelSerializer):
     class Meta:
         model = TODO
@@ -31,3 +39,12 @@ class TODOSerializer(serializers.ModelSerializer):
     class Meta:
         model = TODO
         fields = "__all__"
+
+
+class TODOSerializerWithoutDate(serializers.ModelSerializer):
+    author = CustomUserSerializer()
+    project = ProjectSerializer()
+
+    class Meta:
+        model = TODO
+        exclude = ['date_created', 'date_modified']
