@@ -1,7 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
-const TodoItem = ({ todo }) => {
+const TodoItem = ({ todo, deleteTodo }) => {
   return (
     <tr>
       <td>{todo.id}</td>
@@ -24,11 +25,16 @@ const TodoItem = ({ todo }) => {
       <td>{todo.isActive.toString()}</td>
       <td>{new Date(todo.dateCreated).toLocaleString()}</td>
       <td>{new Date(todo.dateModified).toLocaleString()}</td>
+      <td>
+        <button type="button" onClick={() => deleteTodo(todo.id)}>
+          Delete
+        </button>
+      </td>
     </tr>
   );
 };
 
-const TodoList = ({ todos }) => {
+const TodoList = ({ todos, deleteTodo }) => {
   return (
     <table className="table table-bordered">
       <thead>
@@ -42,14 +48,24 @@ const TodoList = ({ todos }) => {
           <th>Is Active?</th>
           <th>Date Created</th>
           <th>Date Modified</th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
         {todos.map((todo) => (
-          <TodoItem todo={todo} key={todo.id.toString()} />
+          <TodoItem
+            todo={todo}
+            deleteTodo={deleteTodo}
+            key={todo.id.toString()}
+          />
         ))}
       </tbody>
     </table>
   );
 };
-export default TodoList;
+const TodoListFilterId = ({ todos, deleteTodo }) => {
+  let { id } = useParams();
+  let filtered_items = todos.filter((item) => item.id.toString() === id);
+  return <TodoList todos={filtered_items} deleteTodo={deleteTodo} />;
+};
+export { TodoList, TodoListFilterId };

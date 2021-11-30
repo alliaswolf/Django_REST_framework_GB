@@ -46,7 +46,3 @@ class TODOViewSet(ModelViewSet):
                 return TODOSerializerWithoutDate
             return TODOSerializer
         return TODOSerializerBase
-
-    def perform_destroy(self, instance):
-        instance.is_active = False
-        instance.save()
