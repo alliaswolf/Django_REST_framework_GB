@@ -93,35 +93,58 @@ class App extends React.Component {
 
   load_data() {
     const headers = this.get_headers();
-    axios
-      .get("http://127.0.0.1:8000/api/users/", { headers })
+    axios({
+      url: "http://127.0.0.1:8000/graphql/",
+      method: "POST",
+      headers: headers,
+      data: {
+        query: `{
+          allTodos {
+            id
+            title
+            text
+            isActive
+            dateCreated
+            dateModified
+            author {
+              id
+              username
+              email
+            }
+            project {
+              id
+              title
+            }
+          }
+          allUsers {
+            id
+            username
+            firstName
+            lastName
+            email
+            birthday
+          }
+          allProjects {
+            id
+            title
+            link
+            usersWorked {
+              username
+            }
+          }
+        }`,
+      },
+    })
       .then((response) => {
-        const users = response.data.results;
         this.setState({
-          users: users,
+          users: response.data.data.allUsers,
+          todos: response.data.data.allTodos,
+          projects: response.data.data.allProjects,
         });
       })
       .catch((error) => {
-        this.setState({ users: [] });
+        this.setState({ users: [], todos: [], projects: [] });
       });
-    axios
-      .get("http://127.0.0.1:8000/api/projects/todo/", { headers })
-      .then((response) => {
-        const todos = response.data.results;
-        this.setState({
-          todos: todos,
-        });
-      })
-      .catch((error) => console.log(console.error()));
-    axios
-      .get("http://127.0.0.1:8000/api/projects/project/", { headers })
-      .then((response) => {
-        const projects = response.data.results;
-        this.setState({
-          projects: projects,
-        });
-      })
-      .catch((error) => console.log(console.error()));
   }
 
   componentDidMount() {
