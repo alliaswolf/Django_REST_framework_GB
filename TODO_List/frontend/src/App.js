@@ -3,6 +3,7 @@ import "./App.css";
 import { UserList, UserListFilterId } from "./components/Users";
 import { ProjectList, ProjectListFilterId } from "./components/Projects";
 import { TodoList, TodoListFilterId } from "./components/Todos";
+import ProjectForm from "./components/ProjectForm";
 import InfoList from "./components/Home";
 import MenuList from "./components/Menu";
 import Footer from "./components/Footer";
@@ -123,6 +124,20 @@ class App extends React.Component {
       })
       .catch((error) => console.log(console.error()));
   }
+  createProject(title, link, usersWorked) {
+    const headers = this.get_headers();
+    const data = { title: title, link: link, usersWorked: usersWorked };
+    axios
+      .post("http://127.0.0.1:8000/api/projects/project/", data, { headers })
+      .then((response) => {
+        alert(`The project "${response.data.title}" created.`);
+        this.load_data();
+      })
+      .catch((error) => {
+        alert(`Code status is ${error.response.status} - Error create.`);
+        this.setState({ projects: [] });
+      });
+  }
   deleteProject(id) {
     const headers = this.get_headers();
     axios
@@ -229,6 +244,18 @@ class App extends React.Component {
                 deleteProject={(id) => this.deleteProject(id)}
               />
             </Route>
+            <Route
+              exact
+              path="/create/project"
+              component={() => (
+                <ProjectForm
+                  users={this.state.users}
+                  createProject={(title, link, usersWorked) =>
+                    this.createProject(title, link, usersWorked)
+                  }
+                />
+              )}
+            />
             <Route path="/todo/:id">
               <TodoListFilterId
                 todos={this.state.todos}

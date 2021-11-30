@@ -1,5 +1,6 @@
 import React from "react";
 import { useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const ProjectItem = ({ project, deleteProject }) => {
   return (
@@ -19,26 +20,29 @@ const ProjectItem = ({ project, deleteProject }) => {
 
 const ProjectList = ({ projects, deleteProject }) => {
   return (
-    <table className="table table-bordered">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Title</th>
-          <th>Link</th>
-          <th>UsersWorked</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        {projects.map((project) => (
-          <ProjectItem
-            project={project}
-            deleteProject={deleteProject}
-            key={project.id.toString()}
-          />
-        ))}
-      </tbody>
-    </table>
+    <div>
+      <Link to="/create/project">Create Project</Link>
+      <table className="table table-bordered my-3">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Link</th>
+            <th>UsersWorked</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {projects.map((project) => (
+            <ProjectItem
+              project={project}
+              deleteProject={deleteProject}
+              key={project.id.toString()}
+            />
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 };
 
