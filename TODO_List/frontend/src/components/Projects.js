@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import { Link } from "react-router-dom";
 
@@ -19,8 +19,34 @@ const ProjectItem = ({ project, deleteProject }) => {
 };
 
 const ProjectList = ({ projects, deleteProject }) => {
+  const [input, setInput] = useState("");
+  let { id } = useParams();
+  let filtered_items = projects;
+  if (!id) {
+    filtered_items = projects.filter(
+      (item) => (item.title === "") | item.title.toLowerCase().includes(input)
+    );
+  }
   return (
     <div>
+      {!id && (
+        <div className="row pt-3 px-3 justify-content-end">
+          <label
+            htmlFor="search_title"
+            className="col-2 justify-content-end  align-self-end"
+          >
+            Search title project:
+          </label>
+          <input
+            type="text"
+            name="search_title"
+            className="col-3 justify-content-end  align-self-end"
+            placeholder="Search"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+          />
+        </div>
+      )}
       <Link to="/create/project">Create Project</Link>
       <table className="table table-bordered my-3">
         <thead>
@@ -33,7 +59,7 @@ const ProjectList = ({ projects, deleteProject }) => {
           </tr>
         </thead>
         <tbody>
-          {projects.map((project) => (
+          {filtered_items.map((project) => (
             <ProjectItem
               project={project}
               deleteProject={deleteProject}
@@ -53,4 +79,5 @@ const ProjectListFilterId = ({ projects, deleteProject }) => {
     <ProjectList projects={filtered_items} deleteProject={deleteProject} />
   );
 };
+
 export { ProjectList, ProjectListFilterId };
