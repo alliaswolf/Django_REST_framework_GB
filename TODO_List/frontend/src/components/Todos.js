@@ -36,31 +36,34 @@ const TodoItem = ({ todo, deleteTodo }) => {
 
 const TodoList = ({ todos, deleteTodo }) => {
   return (
-    <table className="table table-bordered">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Title</th>
-          <th>Text</th>
-          <th>Project</th>
-          <th>Author</th>
-          <th>Email</th>
-          <th>Is Active?</th>
-          <th>Date Created</th>
-          <th>Date Modified</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        {todos.map((todo) => (
-          <TodoItem
-            todo={todo}
-            deleteTodo={deleteTodo}
-            key={todo.id.toString()}
-          />
-        ))}
-      </tbody>
-    </table>
+    <div>
+      <Link to="/create/todo">Create Todo</Link>
+      <table className="table table-bordered">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Text</th>
+            <th>Project</th>
+            <th>Author</th>
+            <th>Email</th>
+            <th>Is Active?</th>
+            <th>Date Created</th>
+            <th>Date Modified</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {todos.map((todo) => (
+            <TodoItem
+              todo={todo}
+              deleteTodo={deleteTodo}
+              key={todo.id.toString()}
+            />
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 };
 const TodoListFilterId = ({ todos, deleteTodo }) => {

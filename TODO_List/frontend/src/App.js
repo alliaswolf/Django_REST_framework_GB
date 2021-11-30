@@ -4,6 +4,7 @@ import { UserList, UserListFilterId } from "./components/Users";
 import { ProjectList, ProjectListFilterId } from "./components/Projects";
 import { TodoList, TodoListFilterId } from "./components/Todos";
 import ProjectForm from "./components/ProjectForm";
+import TodoForm from "./components/TodoForm";
 import InfoList from "./components/Home";
 import MenuList from "./components/Menu";
 import Footer from "./components/Footer";
@@ -135,7 +136,25 @@ class App extends React.Component {
       })
       .catch((error) => {
         alert(`Code status is ${error.response.status} - Error create.`);
-        this.setState({ projects: [] });
+      });
+  }
+  createTodo(title, text, isActive, author, project) {
+    const headers = this.get_headers();
+    const data = {
+      title: title,
+      text: text,
+      isActive: isActive,
+      author: author,
+      project: project,
+    };
+    axios
+      .post("http://127.0.0.1:8000/api/projects/todo/", data, { headers })
+      .then((response) => {
+        alert(`The todo "${response.data.title}" created.`);
+        this.load_data();
+      })
+      .catch((error) => {
+        alert(`Code status is ${error.response.status} - Error create.`);
       });
   }
   deleteProject(id) {
@@ -252,6 +271,19 @@ class App extends React.Component {
                   users={this.state.users}
                   createProject={(title, link, usersWorked) =>
                     this.createProject(title, link, usersWorked)
+                  }
+                />
+              )}
+            />
+            <Route
+              exact
+              path="/create/todo"
+              component={() => (
+                <TodoForm
+                  users={this.state.users}
+                  projects={this.state.projects}
+                  createTodo={(title, text, isActive, author, project) =>
+                    this.createTodo(title, text, isActive, author, project)
                   }
                 />
               )}
