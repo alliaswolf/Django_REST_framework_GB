@@ -24,17 +24,33 @@ class ProjectForm extends React.Component {
     }
   }
   handleSubmit(event) {
-    this.props.createProject(
-      this.state.title,
-      this.state.link,
-      this.state.usersWorked
-    );
+    switch (this.props.titleForm) {
+      case "Create":
+        this.props.createProject(
+          this.state.title,
+          this.state.link,
+          this.state.usersWorked
+        );
+        break;
+
+      case "Edit":
+        this.props.editProject(
+          this.props.idProject,
+          this.state.title,
+          this.state.link,
+          this.state.usersWorked
+        );
+        break;
+      default:
+        console.log(this.props.titleForm);
+    }
+
     event.preventDefault();
   }
   render() {
     return (
       <div className="card">
-        <h1>Create project</h1>
+        <h1>{this.props.titleForm} project</h1>
         <form onSubmit={(event) => this.handleSubmit(event)}>
           <div className="form-group py-2 col-6 offset-3">
             <label htmlFor="title" className="mx-2">
@@ -62,7 +78,7 @@ class ProjectForm extends React.Component {
           </div>
           <div className="form-group pa-2 col-6 offset-3">
             <label htmlFor="usersWorked" className="mx-2">
-              Users Worked:
+              users worked:
             </label>
             <select
               multiple

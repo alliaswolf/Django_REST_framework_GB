@@ -1,11 +1,24 @@
 import React, { useState } from "react";
-import { useParams } from "react-router-dom";
-import { Link } from "react-router-dom";
+import { useParams, Link, useHistory } from "react-router-dom";
+import ProjectForm from "./ProjectForm";
 
 const ProjectItem = ({ project, deleteProject }) => {
+  let { id } = useParams();
+  let history = useHistory();
+  let link;
+  if (id) {
+    link = project.id;
+  } else {
+    link = (
+      <Link to={`${history.location.pathname}/${project.id}`}>
+        {project.id}
+      </Link>
+    );
+  }
+
   return (
     <tr>
-      <td>{project.id}</td>
+      <td>{link}</td>
       <td>{project.title}</td>
       <td>{project.link}</td>
       <td>{project.usersWorked.join(", ")}</td>
@@ -18,7 +31,7 @@ const ProjectItem = ({ project, deleteProject }) => {
   );
 };
 
-const ProjectList = ({ projects, deleteProject }) => {
+const ProjectList = ({ users, projects, editProject, deleteProject }) => {
   const [input, setInput] = useState("");
   let { id } = useParams();
   let filtered_items = projects;
@@ -68,15 +81,33 @@ const ProjectList = ({ projects, deleteProject }) => {
           ))}
         </tbody>
       </table>
+      {id && (
+        <ProjectForm
+          users={users}
+          titleForm="Edit"
+          editProject={editProject}
+          idProject={id}
+        />
+      )}
     </div>
   );
 };
 
-const ProjectListFilterId = ({ projects, deleteProject }) => {
+const ProjectListFilterId = ({
+  users,
+  projects,
+  editProject,
+  deleteProject,
+}) => {
   let { id } = useParams();
   let filtered_items = projects.filter((item) => item.id.toString() === id);
   return (
-    <ProjectList projects={filtered_items} deleteProject={deleteProject} />
+    <ProjectList
+      projects={filtered_items}
+      deleteProject={deleteProject}
+      editProject={editProject}
+      users={users}
+    />
   );
 };
 

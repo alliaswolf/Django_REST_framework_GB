@@ -93,37 +93,37 @@ class App extends React.Component {
     return headers;
   }
 
-  load_data() {
+  async load_data() {
     const headers = this.get_headers();
-    axios
+    let users = [];
+    let todos = [];
+    let projects = [];
+
+    await axios
       .get("http://127.0.0.1:8000/api/users/", { headers })
       .then((response) => {
-        const users = response.data.results;
-        this.setState({
-          users: users,
-        });
+        users = response.data.results;
       })
-      .catch((error) => {
-        this.setState({ users: [] });
+      .catch(() => {
+        users = [];
       });
-    axios
+    await axios
       .get("http://127.0.0.1:8000/api/projects/todo/", { headers })
       .then((response) => {
-        const todos = response.data.results;
-        this.setState({
-          todos: todos,
-        });
+        todos = response.data.results;
       })
-      .catch((error) => console.log(console.error()));
-    axios
+      .catch((error) => console.log(console.log(error)));
+    await axios
       .get("http://127.0.0.1:8000/api/projects/project/", { headers })
       .then((response) => {
-        const projects = response.data.results;
-        this.setState({
-          projects: projects,
-        });
+        projects = response.data.results;
       })
-      .catch((error) => console.log(console.error()));
+      .catch((error) => console.log(error));
+    this.setState({
+      users: users,
+      todos: todos,
+      projects: projects,
+    });
   }
   createProject(title, link, usersWorked) {
     const headers = this.get_headers();
@@ -157,10 +157,25 @@ class App extends React.Component {
         alert(`Code status is ${error.response.status} - Error create.`);
       });
   }
+  editProject(id, title, link, usersWorked) {
+    const headers = this.get_headers();
+    const data = { id: id, title: title, link: link, usersWorked: usersWorked };
+    axios
+      .patch(`http://127.0.0.1:8000/api/projects/project/${id}/`, data, {
+        headers,
+      })
+      .then((response) => {
+        alert(`The project "${response.data.title}" edited.`);
+        this.load_data();
+      })
+      .catch((error) => {
+        alert(`Code status is ${error.response.status} - Error edit.`);
+      });
+  }
   deleteProject(id) {
     const headers = this.get_headers();
     axios
-      .delete(`http://127.0.0.1:8000/api/projects/project/${id}`, { headers })
+      .delete(`http://127.0.0.1:8000/api/projects/project/${id}/`, { headers })
       .then((response) => {
         this.load_data();
       })
@@ -175,7 +190,7 @@ class App extends React.Component {
   deleteTodo(id) {
     const headers = this.get_headers();
     axios
-      .delete(`http://127.0.0.1:8000/api/projects/todo/${id}`, { headers })
+      .delete(`http://127.0.0.1:8000/api/projects/todo/${id}/`, { headers })
       .then((response) => {
         this.load_data();
       })
@@ -246,6 +261,7 @@ class App extends React.Component {
               component={() => (
                 <ProjectList
                   projects={this.state.projects}
+                  users={this.state.users}
                   deleteProject={(id) => this.deleteProject(id)}
                 />
               )}
@@ -263,7 +279,11 @@ class App extends React.Component {
             <Route path="/project/:id">
               <ProjectListFilterId
                 projects={this.state.projects}
+                users={this.state.users}
                 deleteProject={(id) => this.deleteProject(id)}
+                editProject={(id, title, link, usersWorked) =>
+                  this.editProject(id, title, link, usersWorked)
+                }
               />
             </Route>
             <Route
@@ -271,6 +291,7 @@ class App extends React.Component {
               path="/create/project"
               component={() => (
                 <ProjectForm
+                  titleForm="Create"
                   users={this.state.users}
                   createProject={(title, link, usersWorked) =>
                     this.createProject(title, link, usersWorked)
