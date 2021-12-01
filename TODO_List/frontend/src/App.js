@@ -166,7 +166,10 @@ class App extends React.Component {
       })
       .catch((error) => {
         console.log(error);
-        this.setState({ projects: [] });
+        alert(
+          `Code status is ${error.response.status} - Error delete, project isn't empty.`
+        );
+        this.load_data();
       });
   }
   deleteTodo(id) {
