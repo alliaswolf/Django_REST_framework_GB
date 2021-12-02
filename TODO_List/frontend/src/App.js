@@ -2,8 +2,10 @@ import React from "react";
 import "./App.css";
 import { UserList, UserListFilterId } from "./components/Users";
 import { ProjectList, ProjectListFilterId } from "./components/Projects";
+import { TodoList, TodoListFilterId } from "./components/Todos";
+import ProjectForm from "./components/ProjectForm";
+import TodoForm from "./components/TodoForm";
 import InfoList from "./components/Home";
-import TodoList from "./components/Todos";
 import MenuList from "./components/Menu";
 import Footer from "./components/Footer";
 import LoginForm from "./components/Auth";
@@ -91,59 +93,110 @@ class App extends React.Component {
     return headers;
   }
 
-  load_data() {
+  async load_data() {
     const headers = this.get_headers();
-    axios({
-      url: "http://127.0.0.1:8000/graphql/",
-      method: "POST",
-      headers: headers,
-      data: {
-        query: `{
-          allTodos {
-            id
-            title
-            text
-            isActive
-            dateCreated
-            dateModified
-            author {
-              id
-              username
-              email
-            }
-            project {
-              id
-              title
-            }
-          }
-          allUsers {
-            id
-            username
-            firstName
-            lastName
-            email
-            birthday
-          }
-          allProjects {
-            id
-            title
-            link
-            usersWorked {
-              username
-            }
-          }
-        }`,
-      },
-    })
+    let users = [];
+    let todos = [];
+    let projects = [];
+
+    await axios
+      .get("http://127.0.0.1:8000/api/users/", { headers })
       .then((response) => {
-        this.setState({
-          users: response.data.data.allUsers,
-          todos: response.data.data.allTodos,
-          projects: response.data.data.allProjects,
-        });
+        users = response.data.results;
+      })
+      .catch(() => {
+        users = [];
+      });
+    await axios
+      .get("http://127.0.0.1:8000/api/projects/todo/", { headers })
+      .then((response) => {
+        todos = response.data.results;
+      })
+      .catch((error) => console.log(console.log(error)));
+    await axios
+      .get("http://127.0.0.1:8000/api/projects/project/", { headers })
+      .then((response) => {
+        projects = response.data.results;
+      })
+      .catch((error) => console.log(error));
+    this.setState({
+      users: users,
+      todos: todos,
+      projects: projects,
+    });
+  }
+  createProject(title, link, usersWorked) {
+    const headers = this.get_headers();
+    const data = { title: title, link: link, usersWorked: usersWorked };
+    axios
+      .post("http://127.0.0.1:8000/api/projects/project/", data, { headers })
+      .then((response) => {
+        alert(`The project "${response.data.title}" created.`);
+        this.load_data();
       })
       .catch((error) => {
-        this.setState({ users: [], todos: [], projects: [] });
+        alert(`Code status is ${error.response.status} - Error create.`);
+      });
+  }
+  createTodo(title, text, isActive, author, project) {
+    const headers = this.get_headers();
+    const data = {
+      title: title,
+      text: text,
+      isActive: isActive,
+      author: author,
+      project: project,
+    };
+    axios
+      .post("http://127.0.0.1:8000/api/projects/todo/", data, { headers })
+      .then((response) => {
+        alert(`The todo "${response.data.title}" created.`);
+        this.load_data();
+      })
+      .catch((error) => {
+        alert(`Code status is ${error.response.status} - Error create.`);
+      });
+  }
+  editProject(id, title, link, usersWorked) {
+    const headers = this.get_headers();
+    const data = { id: id, title: title, link: link, usersWorked: usersWorked };
+    axios
+      .patch(`http://127.0.0.1:8000/api/projects/project/${id}/`, data, {
+        headers,
+      })
+      .then((response) => {
+        alert(`The project "${response.data.title}" edited.`);
+        this.load_data();
+      })
+      .catch((error) => {
+        alert(`Code status is ${error.response.status} - Error edit.`);
+      });
+  }
+  deleteProject(id) {
+    const headers = this.get_headers();
+    axios
+      .delete(`http://127.0.0.1:8000/api/projects/project/${id}/`, { headers })
+      .then((response) => {
+        this.load_data();
+      })
+      .catch((error) => {
+        console.log(error);
+        alert(
+          `Code status is ${error.response.status} - Error delete, project isn't empty.`
+        );
+        this.load_data();
+      });
+  }
+  deleteTodo(id) {
+    const headers = this.get_headers();
+    axios
+      .delete(`http://127.0.0.1:8000/api/projects/todo/${id}/`, { headers })
+      .then((response) => {
+        this.load_data();
+      })
+      .catch((error) => {
+        console.log(error);
+        this.setState({ todos: [] });
       });
   }
 
@@ -205,15 +258,65 @@ class App extends React.Component {
             <Route
               exact
               path="/project"
-              component={() => <ProjectList projects={this.state.projects} />}
+              component={() => (
+                <ProjectList
+                  projects={this.state.projects}
+                  users={this.state.users}
+                  deleteProject={(id) => this.deleteProject(id)}
+                />
+              )}
             />
             <Route
               exact
               path="/todo"
-              component={() => <TodoList todos={this.state.todos} />}
+              component={() => (
+                <TodoList
+                  todos={this.state.todos}
+                  deleteTodo={(id) => this.deleteTodo(id)}
+                />
+              )}
             />
             <Route path="/project/:id">
-              <ProjectListFilterId projects={this.state.projects} />
+              <ProjectListFilterId
+                projects={this.state.projects}
+                users={this.state.users}
+                deleteProject={(id) => this.deleteProject(id)}
+                editProject={(id, title, link, usersWorked) =>
+                  this.editProject(id, title, link, usersWorked)
+                }
+              />
+            </Route>
+            <Route
+              exact
+              path="/create/project"
+              component={() => (
+                <ProjectForm
+                  titleForm="Create"
+                  users={this.state.users}
+                  createProject={(title, link, usersWorked) =>
+                    this.createProject(title, link, usersWorked)
+                  }
+                />
+              )}
+            />
+            <Route
+              exact
+              path="/create/todo"
+              component={() => (
+                <TodoForm
+                  users={this.state.users}
+                  projects={this.state.projects}
+                  createTodo={(title, text, isActive, author, project) =>
+                    this.createTodo(title, text, isActive, author, project)
+                  }
+                />
+              )}
+            />
+            <Route path="/todo/:id">
+              <TodoListFilterId
+                todos={this.state.todos}
+                deleteTodo={(id) => this.deleteTodo(id)}
+              />
             </Route>
             <Route path="/user/:id">
               <UserListFilterId users={this.state.users} />
