@@ -24,8 +24,8 @@ Markdown==3.3.4
 MarkupSafe==2.0.1
 mixer==7.2.0
 packaging==21.3
-pkg_resources==0.0.0
 promise==2.3
+psycopg2-binary==2.9.2
 PyJWT==2.3.0
 pyparsing==3.0.6
 python-dateutil==2.8.2
