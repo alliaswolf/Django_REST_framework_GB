@@ -20,7 +20,12 @@ services:
       python3 manage.py makemigrations &&
       python3 manage.py migrate &&
       python3 manage.py create_user &&
-      python3 manage.py runserver 0.0.0.0:8080
-      "
+      gunicorn TODO_List.wsgi -b 0.0.0.0:8080"
     depends_on:
       - db
+  nginx:
+    build: ./nginx
+    ports:
+      - 80:80
+    depends_on:
+      - backend
