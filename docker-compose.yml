@@ -17,7 +17,7 @@ services:
       - 8080:8080
     command: 
       bash -c "
-      python3 manage.py makemigrations &&
+      python3 manage.py makemigrations users_app todo_app &&
       python3 manage.py migrate &&
       python3 manage.py create_user &&
       gunicorn TODO_List.wsgi -b 0.0.0.0:8080"
